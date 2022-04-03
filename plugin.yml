@@ -1,0 +1,6 @@
+name: CTSNC_NameTag
+main: de.Herbystar.CTSNC_Modules.NameTag.Main
+version: 1.5
+author: Herbystar
+depend: [CTSNC, TTA]
+description: CTSNC NameTag module!
