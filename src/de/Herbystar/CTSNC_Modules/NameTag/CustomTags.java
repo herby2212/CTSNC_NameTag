@@ -3,6 +3,7 @@ package de.Herbystar.CTSNC_Modules.NameTag;
 import java.util.UUID;
 
 import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
@@ -15,6 +16,7 @@ import de.Herbystar.CTSNC.Main;
 import de.Herbystar.CTSNC.ReplaceString;
 import de.Herbystar.CTSNC.Files.Files;
 import de.Herbystar.CTSNC_Modules.Scoreboard.Scoreboards;
+import de.Herbystar.TTA.Utils.TTA_BukkitVersion;
 
 public class CustomTags {
 	
@@ -34,11 +36,17 @@ public class CustomTags {
 	private String check(String prefix, Player player) {
 		String checkPrefix = prefix;
 		int over = 0;
-		if(checkPrefix.length() > 16) {
-			over = checkPrefix.length() - 16;
+		int limit;
+		if(TTA_BukkitVersion.getVersionAsInt(2) > 113) {
+			limit = 64;
+		} else {
+			limit = 16;
+		}
+		if(checkPrefix.length() > limit) {
+			over = checkPrefix.length() - limit;
 			Bukkit.getConsoleSender().sendMessage("§cYour Prefix: " + prefix + " §cIs §f" + over + " §ccharacters to long!");
 			if(Files.config2.getBoolean("CTSNC.CUSTOM_TAGS.PrefixShortener") == true) {
-				prefix = prefix.substring(0, 16);
+				prefix = prefix.substring(0, limit);
 			}
 		}
 		return prefix;
@@ -48,8 +56,15 @@ public class CustomTags {
 		if(team == null) {
 			team = board.registerNewTeam(teamName);
 			String modifiedPrefix = ReplaceString.replaceString(prefix, player);
+			if(TTA_BukkitVersion.getVersionAsInt(2) > 113) {
+				ChatColor c = getChatColorFromString(modifiedPrefix);
+				if(c != null) {
+					team.setColor(c);
+				}
+			}
 			team.setPrefix(check(modifiedPrefix, player));
 		}
+		
 		if(!Main.instance.getServerVersion().equalsIgnoreCase("v1_8_R1.") &&
 				!Main.instance.getServerVersion().equalsIgnoreCase("v1_8_R2.") &&
 				!Main.instance.getServerVersion().equalsIgnoreCase("v1_8_R3.") &&
@@ -65,6 +80,18 @@ public class CustomTags {
 		}
 		String modifiedPrefix = ReplaceString.replaceString(prefix, player);
 		team.setPrefix(check(modifiedPrefix, player));
+		if(TTA_BukkitVersion.getVersionAsInt(2) > 113) {
+			ChatColor c = getChatColorFromString(modifiedPrefix);
+			if(c != null) {
+				team.setColor(c);
+			}
+		}
+	}
+	
+	private ChatColor getChatColorFromString(String input) {
+		int index = input.lastIndexOf("§");
+//		Bukkit.getConsoleSender().sendMessage("Index: " + index + " - prefix: " + input + " - colorChar: " + input.charAt(index+1));
+		return ChatColor.getByChar(input.charAt(index+1));
 	}
 		
 	public void setCustomTags(Player player) {
